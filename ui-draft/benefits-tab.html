@@ -3,67 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>权益包2选1 - Tab 版</title>
+  <title>权益包2选1 - Vue3 + Vant</title>
+
+  <!-- Vant CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vant@4/lib/index.css" />
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
-      background: rgba(0,0,0,0.45);
+      background: rgba(0, 0, 0, 0.45);
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
     }
 
-    /* ── 弹窗容器 ── */
-    .modal {
-      background: #fff;
-      border-radius: 16px;
-      width: 380px;
-      padding: 24px 20px 28px;
-      position: relative;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-    }
-
-    /* ── 关闭按钮 ── */
-    .close-btn {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      width: 24px;
-      height: 24px;
-      border: none;
-      background: none;
-      cursor: pointer;
-      color: #999;
-      font-size: 18px;
-      line-height: 1;
-    }
-
-    /* ── 标题 ── */
-    .modal-title {
-      text-align: center;
-      font-size: 18px;
-      font-weight: 700;
-      color: #1a1a1a;
-      margin-bottom: 14px;
+    /* ── 弹窗内容区 ── */
+    .popup-inner {
+      padding: 24px 16px 20px;
     }
 
     /* ── 提示条 ── */
     .tip-bar {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
       background: #f0faf6;
       border-radius: 8px;
       padding: 10px 12px;
+      margin-bottom: 18px;
       font-size: 12px;
       color: #444;
       line-height: 1.7;
-      margin-bottom: 18px;
-      display: flex;
-      gap: 8px;
-      align-items: flex-start;
     }
-    .tip-bar .tag {
+    .tip-tag {
       flex-shrink: 0;
       background: #00c27a;
       color: #fff;
@@ -71,46 +46,29 @@
       padding: 1px 6px;
       font-size: 11px;
       font-weight: 600;
-      margin-top: 1px;
+      margin-top: 2px;
     }
 
-    /* ── Tab 导航 ── */
-    .tab-nav {
-      display: flex;
-      border-radius: 12px;
+    /* ── Vant Tabs 覆盖样式 ── */
+    :root {
+      --van-tabs-bottom-bar-color: #00c27a;
+      --van-tab-active-text-color: #00c27a;
+      --van-tab-font-size: 13px;
+      --van-tabs-line-height: 44px;
+    }
+    .van-tabs__wrap {
+      border-radius: 10px;
+      overflow: hidden;
       background: #f2f2f2;
-      padding: 4px;
-      gap: 4px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
-    .tab-btn {
-      flex: 1;
-      border: none;
-      background: none;
-      border-radius: 9px;
-      padding: 10px 6px;
-      font-size: 13px;
+    .van-tab {
       font-weight: 600;
-      color: #888;
-      cursor: pointer;
-      transition: all .2s;
-      line-height: 1.3;
     }
-    .tab-btn.active {
-      background: #fff;
-      color: #00c27a;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    .van-tabs__line {
+      height: 3px !important;
+      border-radius: 2px !important;
     }
-    .tab-btn .sub {
-      font-size: 11px;
-      font-weight: 400;
-      color: inherit;
-      opacity: .75;
-    }
-
-    /* ── Tab 内容面板 ── */
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
 
     /* ── 权益卡片 ── */
     .benefit-card {
@@ -118,19 +76,34 @@
       border-radius: 12px;
       padding: 16px;
       background: #f8fffe;
+      position: relative;
     }
 
-    /* ── 权益区块标题 ── */
+    /* ── 已选角标 ── */
+    .selected-badge {
+      position: absolute;
+      top: -1px;
+      right: -1px;
+      background: #00c27a;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 0 10px 0 10px;
+    }
+
+    /* ── 区块标签 ── */
     .section-label {
       display: flex;
       align-items: center;
       gap: 6px;
       font-size: 12px;
       font-weight: 600;
-      margin-bottom: 10px;
+      margin: 12px 0 10px;
     }
+    .section-label:first-of-type { margin-top: 0; }
     .section-label.activate { color: #00c27a; }
-    .section-label.consume  { color: #ff7a30; margin-top: 12px; }
+    .section-label.consume  { color: #ff7a30; }
     .section-label::before {
       content: "";
       display: inline-block;
@@ -142,7 +115,12 @@
     .section-label.consume::before  { background: #ff7a30; }
 
     /* ── 权益列表 ── */
-    .benefit-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .benefit-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
     .benefit-item {
       display: flex;
       align-items: flex-start;
@@ -159,195 +137,194 @@
       font-size: 16px;
       flex-shrink: 0;
     }
-    .benefit-info .name {
+    .benefit-name {
       font-size: 13px;
       font-weight: 600;
       color: #1a1a1a;
     }
-    .benefit-info .desc {
+    .benefit-desc {
       font-size: 11px;
       color: #888;
       margin-top: 2px;
-      line-height: 1.4;
+      line-height: 1.5;
     }
-
-    /* ── 已选角标 ── */
-    .selected-badge {
-      position: absolute;
-      top: -1px;
-      right: -1px;
-      background: #00c27a;
-      color: #fff;
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 0 10px 0 10px;
-      font-weight: 600;
-    }
-    .benefit-card-wrap { position: relative; }
 
     /* ── 底部按钮 ── */
-    .confirm-btn {
-      width: 100%;
-      margin-top: 22px;
-      height: 50px;
-      border: none;
-      border-radius: 25px;
-      background: linear-gradient(90deg, #00d085, #00a86b);
-      color: #fff;
-      font-size: 17px;
-      font-weight: 700;
-      cursor: pointer;
-      letter-spacing: .5px;
-      box-shadow: 0 4px 14px rgba(0,180,100,0.35);
-      transition: opacity .15s;
+    .footer-btn {
+      margin-top: 20px;
+      padding: 0 0 4px;
     }
-    .confirm-btn:hover { opacity: .9; }
+    :root {
+      --van-button-primary-background: linear-gradient(90deg, #00d085, #00a86b);
+      --van-button-primary-border-color: transparent;
+    }
+    .van-button--primary {
+      background: linear-gradient(90deg, #00d085, #00a86b) !important;
+      border: none !important;
+      box-shadow: 0 4px 14px rgba(0, 180, 100, 0.35);
+    }
   </style>
 </head>
 <body>
 
-<div class="modal">
-  <button class="close-btn">✕</button>
-  <h2 class="modal-title">权益包2选1</h2>
+<div id="app"></div>
 
-  <!-- 提示条 -->
-  <div class="tip-bar">
-    <span class="tag">提示</span>
-    <span>持卡客户可在以下权益包中二选一，权益包到期后，自动发放上一年所选择的权益包。选定权益包且已使用包内权益则无法再更换权益包；未使用权益，每激活年支持更换N次权益包。</span>
-  </div>
-
-  <!-- Tab 导航 -->
-  <div class="tab-nav">
-    <button class="tab-btn active" onclick="switchTab(0)">
-      🚀 高端出行权益包<br><span class="sub">享 5 项权益</span>
-    </button>
-    <button class="tab-btn" onclick="switchTab(1)">
-      💊 高端健康权益包<br><span class="sub">享 4 项权益</span>
-    </button>
-  </div>
-
-  <!-- ── Panel 0: 高端出行 ── -->
-  <div class="tab-panel active" id="panel-0">
-    <div class="benefit-card-wrap">
-      <div class="benefit-card">
-        <div class="selected-badge">✓ 当前选择</div>
-
-        <div class="section-label activate">激活后 获取如下权益</div>
-        <ul class="benefit-list">
-          <li class="benefit-item">
-            <div class="benefit-icon">✈️</div>
-            <div class="benefit-info">
-              <div class="name">贵宾室服务 6 次</div>
-              <div class="desc">全球贵宾出示厅权益</div>
-            </div>
-          </li>
-          <li class="benefit-item">
-            <div class="benefit-icon">🚗</div>
-            <div class="benefit-info">
-              <div class="name">境内接送服务 2 次</div>
-              <div class="desc">境内多家市级机场/站/城际接送服务</div>
-            </div>
-          </li>
-          <li class="benefit-item">
-            <div class="benefit-icon">🛒</div>
-            <div class="benefit-info">
-              <div class="name">低价购接送服务 3 次</div>
-              <div class="desc">50元即可购享指定机场/站/城际接送服务</div>
-            </div>
-          </li>
-          <li class="benefit-item">
-            <div class="benefit-icon">🛃</div>
-            <div class="benefit-info">
-              <div class="name">CIP快速通道 1 次</div>
-              <div class="desc">尊享机场快捷安检服务</div>
-            </div>
-          </li>
-          <li class="benefit-item">
-            <div class="benefit-icon">🏨</div>
-            <div class="benefit-info">
-              <div class="name">高档酒店住宿 1 次</div>
-              <div class="desc">免费入住奢华酒店</div>
-            </div>
-          </li>
-        </ul>
-
-        <div class="section-label consume">消费达标后 获取如下权益</div>
-        <ul class="benefit-list">
-          <li class="benefit-item">
-            <div class="benefit-icon">🚗</div>
-            <div class="benefit-info">
-              <div class="name">境内接送服务 4 次</div>
-              <div class="desc">每月消费满1万，次日额外赠送1次境内接送服务</div>
-            </div>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Panel 1: 高端健康 ── -->
-  <div class="tab-panel" id="panel-1">
-    <div class="benefit-card-wrap">
-      <div class="benefit-card" style="border-color:#00c27a; background:#f8fffe;">
-
-        <div class="section-label activate">激活后 获取如下权益</div>
-        <ul class="benefit-list">
-          <li class="benefit-item">
-            <div class="benefit-icon">👨‍⚕️</div>
-            <div class="benefit-info">
-              <div class="name">三甲专家咨询 2 次</div>
-              <div class="desc">知名三甲医院专家线上健康咨询</div>
-            </div>
-          </li>
-          <li class="benefit-item">
-            <div class="benefit-icon">📅</div>
-            <div class="benefit-info">
-              <div class="name">专家号预约 1 次</div>
-              <div class="desc">享受极速AI挂号或线下专家咨询服务</div>
-            </div>
-          </li>
-          <li class="benefit-item">
-            <div class="benefit-icon">🏥</div>
-            <div class="benefit-info">
-              <div class="name">综合体检 1 次</div>
-              <div class="desc">高端全套综合体检服务</div>
-            </div>
-          </li>
-          <li class="benefit-item">
-            <div class="benefit-icon">🦷</div>
-            <div class="benefit-info">
-              <div class="name">口腔护理 1 次</div>
-              <div class="desc">口腔检查、洁牙和皓白提亮</div>
-            </div>
-          </li>
-        </ul>
-
-        <div class="section-label consume">消费达标后 获取如下权益</div>
-        <ul class="benefit-list">
-          <li class="benefit-item">
-            <div class="benefit-icon">📅</div>
-            <div class="benefit-info">
-              <div class="name">专家号预约 3 次</div>
-              <div class="desc">每月消费满1万，次日额外赠送1次专家号预约权益</div>
-            </div>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <button class="confirm-btn">领取权益</button>
-</div>
+<!-- Vue 3 -->
+<script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+<!-- Vant -->
+<script src="https://cdn.jsdelivr.net/npm/vant@4/lib/vant.min.js"></script>
 
 <script>
-  function switchTab(index) {
-    document.querySelectorAll('.tab-btn').forEach((btn, i) => {
-      btn.classList.toggle('active', i === index);
-    });
-    document.querySelectorAll('.tab-panel').forEach((panel, i) => {
-      panel.classList.toggle('active', i === index);
-    });
-  }
+const { createApp, ref } = Vue;
+
+const App = {
+  setup() {
+    const show = ref(true);
+    const activeTab = ref(0);
+
+    const travelBenefits = {
+      activate: [
+        { icon: '✈️', name: '贵宾室服务 6 次',    desc: '全球贵宾出示厅权益' },
+        { icon: '🚗', name: '境内接送服务 2 次',   desc: '境内多家市级机场/站/城际接送服务' },
+        { icon: '🛒', name: '低价购接送服务 3 次', desc: '50元即可购享指定机场/站/城际接送服务' },
+        { icon: '🛃', name: 'CIP快速通道 1 次',   desc: '尊享机场快捷安检服务' },
+        { icon: '🏨', name: '高档酒店住宿 1 次',  desc: '免费入住奢华酒店' },
+      ],
+      consume: [
+        { icon: '🚗', name: '境内接送服务 4 次', desc: '每月消费满1万，次日额外赠送1次境内接送服务' },
+      ],
+    };
+
+    const healthBenefits = {
+      activate: [
+        { icon: '👨‍⚕️', name: '三甲专家咨询 2 次', desc: '知名三甲医院专家线上健康咨询' },
+        { icon: '📅', name: '专家号预约 1 次',    desc: '享受极速AI挂号或线下专家咨询服务' },
+        { icon: '🏥', name: '综合体检 1 次',      desc: '高端全套综合体检服务' },
+        { icon: '🦷', name: '口腔护理 1 次',      desc: '口腔检查、洁牙和皓白提亮' },
+      ],
+      consume: [
+        { icon: '📅', name: '专家号预约 3 次', desc: '每月消费满1万，次日额外赠送1次专家号预约权益' },
+      ],
+    };
+
+    function onConfirm() {
+      const name = activeTab.value === 0 ? '高端出行权益包' : '高端健康权益包';
+      vant.showToast({ message: `已选择「${name}」`, position: 'bottom' });
+    }
+
+    return {
+      show,
+      activeTab,
+      travelBenefits,
+      healthBenefits,
+      onConfirm,
+    };
+  },
+
+  template: `
+    <van-popup
+      v-model:show="show"
+      round
+      closeable
+      :style="{ width: '90%', maxWidth: '400px' }"
+    >
+      <div class="popup-inner">
+        <!-- 标题 -->
+        <van-divider
+          :style="{ color: '#1a1a1a', borderColor: 'transparent', fontSize: '18px', fontWeight: 700, margin: '0 0 14px' }"
+        >权益包2选1</van-divider>
+
+        <!-- 提示条 -->
+        <div class="tip-bar">
+          <span class="tip-tag">提示</span>
+          <span>持卡客户可在以下权益包中二选一，权益包到期后，自动发放上一年所选择的权益包。选定权益包且已使用包内权益则无法再更换权益包；未使用权益，每激活年支持更换N次权益包。</span>
+        </div>
+
+        <!-- Tabs -->
+        <van-tabs v-model:active="activeTab" animated swipeable>
+
+          <!-- Tab 0: 高端出行 -->
+          <van-tab name="0" title="🚀 高端出行权益包">
+            <div style="padding: 4px 0 2px;">
+              <div class="benefit-card">
+                <span v-if="activeTab === 0" class="selected-badge">✓ 当前选择</span>
+
+                <p class="section-label activate">激活后 获取如下权益</p>
+                <ul class="benefit-list">
+                  <li v-for="item in travelBenefits.activate" :key="item.name" class="benefit-item">
+                    <div class="benefit-icon">{{ item.icon }}</div>
+                    <div>
+                      <div class="benefit-name">{{ item.name }}</div>
+                      <div class="benefit-desc">{{ item.desc }}</div>
+                    </div>
+                  </li>
+                </ul>
+
+                <p class="section-label consume">消费达标后 获取如下权益</p>
+                <ul class="benefit-list">
+                  <li v-for="item in travelBenefits.consume" :key="item.name" class="benefit-item">
+                    <div class="benefit-icon">{{ item.icon }}</div>
+                    <div>
+                      <div class="benefit-name">{{ item.name }}</div>
+                      <div class="benefit-desc">{{ item.desc }}</div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </van-tab>
+
+          <!-- Tab 1: 高端健康 -->
+          <van-tab name="1" title="💊 高端健康权益包">
+            <div style="padding: 4px 0 2px;">
+              <div class="benefit-card">
+                <span v-if="activeTab === 1" class="selected-badge">✓ 当前选择</span>
+
+                <p class="section-label activate">激活后 获取如下权益</p>
+                <ul class="benefit-list">
+                  <li v-for="item in healthBenefits.activate" :key="item.name" class="benefit-item">
+                    <div class="benefit-icon">{{ item.icon }}</div>
+                    <div>
+                      <div class="benefit-name">{{ item.name }}</div>
+                      <div class="benefit-desc">{{ item.desc }}</div>
+                    </div>
+                  </li>
+                </ul>
+
+                <p class="section-label consume">消费达标后 获取如下权益</p>
+                <ul class="benefit-list">
+                  <li v-for="item in healthBenefits.consume" :key="item.name" class="benefit-item">
+                    <div class="benefit-icon">{{ item.icon }}</div>
+                    <div>
+                      <div class="benefit-name">{{ item.name }}</div>
+                      <div class="benefit-desc">{{ item.desc }}</div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </van-tab>
+
+        </van-tabs>
+
+        <!-- 领取按钮 -->
+        <div class="footer-btn">
+          <van-button
+            type="primary"
+            round
+            block
+            size="large"
+            @click="onConfirm"
+          >领取权益</van-button>
+        </div>
+      </div>
+    </van-popup>
+  `,
+};
+
+const app = createApp(App);
+app.use(vant);
+app.mount('#app');
 </script>
 </body>
 </html>
