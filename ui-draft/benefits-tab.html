@@ -55,6 +55,8 @@
       --van-tab-active-text-color: #00c27a;
       --van-tab-font-size: 13px;
       --van-tabs-line-height: 44px;
+      --van-button-primary-background: linear-gradient(90deg, #00d085, #00a86b);
+      --van-button-primary-border-color: transparent;
     }
     .van-tabs__wrap {
       border-radius: 10px;
@@ -62,9 +64,7 @@
       background: #f2f2f2;
       margin-bottom: 14px;
     }
-    .van-tab {
-      font-weight: 600;
-    }
+    .van-tab { font-weight: 600; }
     .van-tabs__line {
       height: 3px !important;
       border-radius: 2px !important;
@@ -150,14 +150,7 @@
     }
 
     /* ── 底部按钮 ── */
-    .footer-btn {
-      margin-top: 20px;
-      padding: 0 0 4px;
-    }
-    :root {
-      --van-button-primary-background: linear-gradient(90deg, #00d085, #00a86b);
-      --van-button-primary-border-color: transparent;
-    }
+    .footer-btn { margin-top: 20px; padding: 0 0 4px; }
     .van-button--primary {
       background: linear-gradient(90deg, #00d085, #00a86b) !important;
       border: none !important;
@@ -182,43 +175,63 @@ const App = {
     const show = ref(true);
     const activeTab = ref(0);
 
-    const travelBenefits = {
-      activate: [
-        { icon: '✈️', name: '贵宾室服务 6 次',    desc: '全球贵宾出示厅权益' },
-        { icon: '🚗', name: '境内接送服务 2 次',   desc: '境内多家市级机场/站/城际接送服务' },
-        { icon: '🛒', name: '低价购接送服务 3 次', desc: '50元即可购享指定机场/站/城际接送服务' },
-        { icon: '🛃', name: 'CIP快速通道 1 次',   desc: '尊享机场快捷安检服务' },
-        { icon: '🏨', name: '高档酒店住宿 1 次',  desc: '免费入住奢华酒店' },
-      ],
-      consume: [
-        { icon: '🚗', name: '境内接送服务 4 次', desc: '每月消费满1万，次日额外赠送1次境内接送服务' },
-      ],
-    };
-
-    const healthBenefits = {
-      activate: [
-        { icon: '👨‍⚕️', name: '三甲专家咨询 2 次', desc: '知名三甲医院专家线上健康咨询' },
-        { icon: '📅', name: '专家号预约 1 次',    desc: '享受极速AI挂号或线下专家咨询服务' },
-        { icon: '🏥', name: '综合体检 1 次',      desc: '高端全套综合体检服务' },
-        { icon: '🦷', name: '口腔护理 1 次',      desc: '口腔检查、洁牙和皓白提亮' },
-      ],
-      consume: [
-        { icon: '📅', name: '专家号预约 3 次', desc: '每月消费满1万，次日额外赠送1次专家号预约权益' },
-      ],
-    };
+    // ── 所有权益包数据，Tab 和 Panel 全部由此驱动 ──
+    const packages = [
+      {
+        title: '🚀 高端出行权益包',
+        sections: [
+          {
+            type: 'activate',
+            label: '激活后 获取如下权益',
+            items: [
+              { icon: '✈️', name: '贵宾室服务 6 次',    desc: '全球贵宾出示厅权益' },
+              { icon: '🚗', name: '境内接送服务 2 次',   desc: '境内多家市级机场/站/城际接送服务' },
+              { icon: '🛒', name: '低价购接送服务 3 次', desc: '50元即可购享指定机场/站/城际接送服务' },
+              { icon: '🛃', name: 'CIP快速通道 1 次',   desc: '尊享机场快捷安检服务' },
+              { icon: '🏨', name: '高档酒店住宿 1 次',  desc: '免费入住奢华酒店' },
+            ],
+          },
+          {
+            type: 'consume',
+            label: '消费达标后 获取如下权益',
+            items: [
+              { icon: '🚗', name: '境内接送服务 4 次', desc: '每月消费满1万，次日额外赠送1次境内接送服务' },
+            ],
+          },
+        ],
+      },
+      {
+        title: '💊 高端健康权益包',
+        sections: [
+          {
+            type: 'activate',
+            label: '激活后 获取如下权益',
+            items: [
+              { icon: '👨‍⚕️', name: '三甲专家咨询 2 次', desc: '知名三甲医院专家线上健康咨询' },
+              { icon: '📅',   name: '专家号预约 1 次',   desc: '享受极速AI挂号或线下专家咨询服务' },
+              { icon: '🏥',   name: '综合体检 1 次',     desc: '高端全套综合体检服务' },
+              { icon: '🦷',   name: '口腔护理 1 次',     desc: '口腔检查、洁牙和皓白提亮' },
+            ],
+          },
+          {
+            type: 'consume',
+            label: '消费达标后 获取如下权益',
+            items: [
+              { icon: '📅', name: '专家号预约 3 次', desc: '每月消费满1万，次日额外赠送1次专家号预约权益' },
+            ],
+          },
+        ],
+      },
+    ];
 
     function onConfirm() {
-      const name = activeTab.value === 0 ? '高端出行权益包' : '高端健康权益包';
-      vant.showToast({ message: `已选择「${name}」`, position: 'bottom' });
+      vant.showToast({
+        message: `已选择「${packages[activeTab.value].title.replace(/^\S+\s/, '')}」`,
+        position: 'bottom',
+      });
     }
 
-    return {
-      show,
-      activeTab,
-      travelBenefits,
-      healthBenefits,
-      onConfirm,
-    };
+    return { show, activeTab, packages, onConfirm };
   },
 
   template: `
@@ -229,6 +242,7 @@ const App = {
       :style="{ width: '90%', maxWidth: '400px' }"
     >
       <div class="popup-inner">
+
         <!-- 标题 -->
         <van-divider
           :style="{ color: '#1a1a1a', borderColor: 'transparent', fontSize: '18px', fontWeight: 700, margin: '0 0 14px' }"
@@ -240,83 +254,46 @@ const App = {
           <span>持卡客户可在以下权益包中二选一，权益包到期后，自动发放上一年所选择的权益包。选定权益包且已使用包内权益则无法再更换权益包；未使用权益，每激活年支持更换N次权益包。</span>
         </div>
 
-        <!-- Tabs -->
+        <!-- Tabs：van-tab 由 v-for 生成 -->
         <van-tabs v-model:active="activeTab" animated swipeable>
-
-          <!-- Tab 0: 高端出行 -->
-          <van-tab name="0" title="🚀 高端出行权益包">
+          <van-tab
+            v-for="(pkg, pkgIndex) in packages"
+            :key="pkgIndex"
+            :title="pkg.title"
+          >
+            <!-- Panel 内容：sections 也由 v-for 生成 -->
             <div style="padding: 4px 0 2px;">
               <div class="benefit-card">
-                <span v-if="activeTab === 0" class="selected-badge">✓ 当前选择</span>
+                <span v-if="activeTab === pkgIndex" class="selected-badge">✓ 当前选择</span>
 
-                <p class="section-label activate">激活后 获取如下权益</p>
-                <ul class="benefit-list">
-                  <li v-for="item in travelBenefits.activate" :key="item.name" class="benefit-item">
-                    <div class="benefit-icon">{{ item.icon }}</div>
-                    <div>
-                      <div class="benefit-name">{{ item.name }}</div>
-                      <div class="benefit-desc">{{ item.desc }}</div>
-                    </div>
-                  </li>
-                </ul>
-
-                <p class="section-label consume">消费达标后 获取如下权益</p>
-                <ul class="benefit-list">
-                  <li v-for="item in travelBenefits.consume" :key="item.name" class="benefit-item">
-                    <div class="benefit-icon">{{ item.icon }}</div>
-                    <div>
-                      <div class="benefit-name">{{ item.name }}</div>
-                      <div class="benefit-desc">{{ item.desc }}</div>
-                    </div>
-                  </li>
-                </ul>
+                <template v-for="(section, sIdx) in pkg.sections" :key="sIdx">
+                  <p :class="['section-label', section.type]">{{ section.label }}</p>
+                  <ul class="benefit-list">
+                    <li
+                      v-for="item in section.items"
+                      :key="item.name"
+                      class="benefit-item"
+                    >
+                      <div class="benefit-icon">{{ item.icon }}</div>
+                      <div>
+                        <div class="benefit-name">{{ item.name }}</div>
+                        <div class="benefit-desc">{{ item.desc }}</div>
+                      </div>
+                    </li>
+                  </ul>
+                </template>
               </div>
             </div>
           </van-tab>
-
-          <!-- Tab 1: 高端健康 -->
-          <van-tab name="1" title="💊 高端健康权益包">
-            <div style="padding: 4px 0 2px;">
-              <div class="benefit-card">
-                <span v-if="activeTab === 1" class="selected-badge">✓ 当前选择</span>
-
-                <p class="section-label activate">激活后 获取如下权益</p>
-                <ul class="benefit-list">
-                  <li v-for="item in healthBenefits.activate" :key="item.name" class="benefit-item">
-                    <div class="benefit-icon">{{ item.icon }}</div>
-                    <div>
-                      <div class="benefit-name">{{ item.name }}</div>
-                      <div class="benefit-desc">{{ item.desc }}</div>
-                    </div>
-                  </li>
-                </ul>
-
-                <p class="section-label consume">消费达标后 获取如下权益</p>
-                <ul class="benefit-list">
-                  <li v-for="item in healthBenefits.consume" :key="item.name" class="benefit-item">
-                    <div class="benefit-icon">{{ item.icon }}</div>
-                    <div>
-                      <div class="benefit-name">{{ item.name }}</div>
-                      <div class="benefit-desc">{{ item.desc }}</div>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </van-tab>
-
         </van-tabs>
 
         <!-- 领取按钮 -->
         <div class="footer-btn">
-          <van-button
-            type="primary"
-            round
-            block
-            size="large"
-            @click="onConfirm"
-          >领取权益</van-button>
+          <van-button type="primary" round block size="large" @click="onConfirm">
+            领取权益
+          </van-button>
         </div>
+
       </div>
     </van-popup>
   `,
