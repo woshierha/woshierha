@@ -2,303 +2,449 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>权益包2选1 - Vue3 + Vant</title>
-
-  <!-- Vant CSS -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>权益包2选1</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vant@4/lib/index.css" />
-
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
+    html, body {
+      height: 100%;
       font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
-      background: rgba(0, 0, 0, 0.45);
-      display: flex;
-      justify-content: center;
-      align-items: center;
+    }
+
+    /* ── 页面整体背景 ── */
+    #app {
       min-height: 100vh;
+      background: linear-gradient(160deg, #d6f5ec 0%, #edfaf5 40%, #f5fffe 100%);
+      display: flex;
+      flex-direction: column;
     }
 
-    /* ── 弹窗内容区 ── */
-    .popup-inner {
-      padding: 24px 16px 20px;
+    /* ── 头部区域 ── */
+    .page-header {
+      position: relative;
+      padding: 48px 24px 24px;
+      overflow: hidden;
     }
 
-    /* ── 提示条 ── */
+    /* 右上角装饰图形 */
+    .deco {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 140px;
+      height: 140px;
+      opacity: 0.35;
+      pointer-events: none;
+    }
+
+    /* 标题 */
+    .page-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: #1a1a1a;
+      line-height: 1.2;
+      margin-bottom: 14px;
+      position: relative;
+      z-index: 1;
+    }
+    .page-title .highlight {
+      color: #00c27a;
+    }
+
+    /* 提示条：描边风格 */
     .tip-bar {
       display: flex;
       align-items: flex-start;
       gap: 8px;
-      background: #f0faf6;
+      background: transparent;
+      border: 1.5px solid #00c27a;
       border-radius: 8px;
       padding: 10px 12px;
-      margin-bottom: 18px;
-      font-size: 12px;
+      font-size: 13px;
       color: #444;
-      line-height: 1.7;
+      line-height: 1.75;
+      position: relative;
+      z-index: 1;
     }
     .tip-tag {
       flex-shrink: 0;
-      background: #00c27a;
-      color: #fff;
+      border: 1.5px solid #00c27a;
+      color: #00c27a;
       border-radius: 4px;
-      padding: 1px 6px;
+      padding: 0 5px;
       font-size: 11px;
       font-weight: 600;
-      margin-top: 2px;
+      margin-top: 3px;
+      line-height: 1.6;
     }
 
-    /* ── Vant Tabs 覆盖样式 ── */
+    /* ── 主内容滚动区 ── */
+    .page-body {
+      flex: 1;
+      padding: 0 16px 100px;
+      overflow-y: auto;
+    }
+
+    /* ── Tabs 容器 ── */
+    .tabs-card {
+      background: #fff;
+      border-radius: 16px 16px 0 0;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+
+    /* Vant Tabs CSS 变量覆盖 */
     :root {
       --van-tabs-bottom-bar-color: #00c27a;
-      --van-tab-active-text-color: #00c27a;
-      --van-tab-font-size: 13px;
-      --van-tabs-line-height: 44px;
-      --van-button-primary-background: linear-gradient(90deg, #00d085, #00a86b);
-      --van-button-primary-border-color: transparent;
+      --van-tab-active-text-color: #1a1a1a;
+      --van-tab-text-color: #999;
+      --van-tab-font-size: 15px;
+      --van-tabs-line-height: 50px;
+      --van-tabs-default-color: #00c27a;
     }
-    .van-tabs__wrap {
-      border-radius: 10px;
-      overflow: hidden;
-      background: #f2f2f2;
-      margin-bottom: 14px;
-    }
+    .van-tabs__wrap { border-bottom: 1px solid #f0f0f0; }
     .van-tab { font-weight: 600; }
+    .van-tab--active { font-weight: 700; }
     .van-tabs__line {
       height: 3px !important;
       border-radius: 2px !important;
+      bottom: 0 !important;
     }
-    /* 隐藏 Vant Tabs 默认的内容容器，Panel 由我们自己渲染 */
+    /* 隐藏 Vant Tabs 自带的内容容器 */
     .van-tabs__content { display: none !important; }
 
-    /* ── 权益卡片（唯一共用的 Panel div）── */
-    .benefit-card {
-      border: 2px solid #00c27a;
-      border-radius: 12px;
-      padding: 16px;
-      background: #f8fffe;
-      position: relative;
-    }
-
-    /* ── 已选角标 ── */
-    .selected-badge {
-      position: absolute;
-      top: -1px;
-      right: -1px;
-      background: #00c27a;
-      color: #fff;
-      font-size: 11px;
-      font-weight: 600;
-      padding: 2px 10px;
-      border-radius: 0 10px 0 10px;
+    /* ── 权益面板（唯一共用 div）── */
+    .benefit-panel {
+      background: #fff;
+      border-radius: 0 0 16px 16px;
+      padding: 0 0 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
     }
 
     /* ── 区块标签 ── */
-    .section-label {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      font-weight: 600;
-      margin: 12px 0 10px;
+    .section-header {
+      padding: 18px 16px 12px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
     }
-    .section-label:first-of-type { margin-top: 0; }
-    .section-label.activate { color: #00c27a; }
-    .section-label.consume  { color: #ff7a30; }
-    .section-label::before {
-      content: "";
-      display: inline-block;
-      width: 3px;
-      height: 13px;
-      border-radius: 2px;
+    .section-header .label-text {
+      font-weight: 700;
+      font-size: 15px;
     }
-    .section-label.activate::before { background: #00c27a; }
-    .section-label.consume::before  { background: #ff7a30; }
+    .section-header.activate .label-text { color: #00c27a; }
+    .section-header.consume  .label-text { color: #ff6b35; }
 
     /* ── 权益列表 ── */
-    .benefit-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+    .benefit-list { list-style: none; }
     .benefit-item {
       display: flex;
-      align-items: flex-start;
-      gap: 10px;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      border-top: 1px solid #f5f5f5;
     }
+    .benefit-item:first-child { border-top: none; }
+
+    /* 图标容器 */
     .benefit-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: #e6f9f2;
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
-      flex-shrink: 0;
     }
+    .benefit-icon svg {
+      width: 36px;
+      height: 36px;
+    }
+
     .benefit-name {
-      font-size: 13px;
+      font-size: 15px;
       font-weight: 600;
       color: #1a1a1a;
+      margin-bottom: 3px;
     }
     .benefit-desc {
-      font-size: 11px;
-      color: #888;
-      margin-top: 2px;
+      font-size: 12px;
+      color: #999;
       line-height: 1.5;
     }
 
-    /* ── 底部按钮 ── */
-    .footer-btn { margin-top: 20px; padding: 0 0 4px; }
+    /* 消费达标区块背景 */
+    .consume-section {
+      background: #fffaf7;
+      border-radius: 12px;
+      margin: 0 12px;
+    }
+    .consume-section .section-header {
+      padding-bottom: 8px;
+    }
+    .consume-section .benefit-item {
+      border-top-color: #fff0e8;
+    }
+
+    /* ── 底部固定按钮 ── */
+    .footer-fixed {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 12px 20px 28px;
+      background: linear-gradient(to top, #f0fdf8 60%, transparent);
+    }
     .van-button--primary {
-      background: linear-gradient(90deg, #00d085, #00a86b) !important;
+      background: #00c27a !important;
       border: none !important;
-      box-shadow: 0 4px 14px rgba(0, 180, 100, 0.35);
+      font-size: 17px !important;
+      font-weight: 700 !important;
+      letter-spacing: 1px;
+      box-shadow: 0 6px 20px rgba(0, 194, 122, 0.4);
     }
   </style>
 </head>
 <body>
-
 <div id="app"></div>
 
-<!-- Vue 3 -->
 <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
-<!-- Vant -->
 <script src="https://cdn.jsdelivr.net/npm/vant@4/lib/vant.min.js"></script>
-
 <script>
 const { createApp, ref, computed } = Vue;
 
+/* ── 线条风格 SVG 图标 ── */
+const ICONS = {
+  lounge: `<svg viewBox="0 0 48 48" fill="none" stroke="#aaa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="6" y="20" width="36" height="16" rx="4"/>
+    <path d="M6 24v-4a6 6 0 0 1 12 0v4"/>
+    <path d="M42 24v-4a6 6 0 0 0-12 0v4"/>
+    <line x1="12" y1="36" x2="12" y2="42"/>
+    <line x1="36" y1="36" x2="36" y2="42"/>
+    <line x1="10" y1="42" x2="14" y2="42"/>
+    <line x1="34" y1="42" x2="38" y2="42"/>
+  </svg>`,
+  car: `<svg viewBox="0 0 48 48" fill="none" stroke="#aaa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 28l4-10h24l4 10"/>
+    <rect x="4" y="28" width="40" height="10" rx="3"/>
+    <circle cx="13" cy="38" r="4"/>
+    <circle cx="35" cy="38" r="4"/>
+    <path d="M4 32h4M40 32h4"/>
+    <path d="M24 14c-3 0-5 2-5 5h10c0-3-2-5-5-5z"/>
+    <line x1="24" y1="10" x2="24" y2="14"/>
+  </svg>`,
+  discount_car: `<svg viewBox="0 0 48 48" fill="none" stroke="#aaa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 28l4-10h22l4 10"/>
+    <rect x="2" y="28" width="36" height="10" rx="3"/>
+    <circle cx="10" cy="38" r="3.5"/>
+    <circle cx="30" cy="38" r="3.5"/>
+    <circle cx="40" cy="18" r="7"/>
+    <line x1="37" y1="15" x2="43" y2="21"/>
+    <line x1="43" y1="15" x2="37" y2="21"/>
+  </svg>`,
+  lightning: `<svg viewBox="0 0 48 48" fill="none" stroke="#aaa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="8" y="6" width="32" height="36" rx="5"/>
+    <polyline points="28,8 20,26 26,26 20,40"/>
+  </svg>`,
+  hotel: `<svg viewBox="0 0 48 48" fill="none" stroke="#aaa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="6" y="14" width="36" height="28" rx="2"/>
+    <path d="M6 14l18-8 18 8"/>
+    <rect x="14" y="22" width="6" height="6" rx="1"/>
+    <rect x="28" y="22" width="6" height="6" rx="1"/>
+    <rect x="19" y="32" width="10" height="10"/>
+    <line x1="6" y1="42" x2="42" y2="42"/>
+  </svg>`,
+  doctor: `<svg viewBox="0 0 48 48" fill="none" stroke="#aaa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="24" cy="12" r="7"/>
+    <path d="M10 42c0-7.7 6.3-14 14-14s14 6.3 14 14"/>
+    <line x1="30" y1="26" x2="36" y2="32"/>
+    <circle cx="38" cy="34" r="4"/>
+    <line x1="36" y1="34" x2="40" y2="34"/>
+    <line x1="38" y1="32" x2="38" y2="36"/>
+  </svg>`,
+  calendar: `<svg viewBox="0 0 48 48" fill="none" stroke="#aaa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="6" y="10" width="36" height="32" rx="3"/>
+    <line x1="6" y1="20" x2="42" y2="20"/>
+    <line x1="16" y1="6" x2="16" y2="14"/>
+    <line x1="32" y1="6" x2="32" y2="14"/>
+    <line x1="14" y1="28" x2="34" y2="28"/>
+    <line x1="14" y1="34" x2="26" y2="34"/>
+  </svg>`,
+  checkup: `<svg viewBox="0 0 48 48" fill="none" stroke="#aaa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="8" y="6" width="32" height="36" rx="3"/>
+    <line x1="16" y1="18" x2="32" y2="18"/>
+    <line x1="16" y1="24" x2="32" y2="24"/>
+    <line x1="16" y1="30" x2="24" y2="30"/>
+    <circle cx="36" cy="36" r="6" fill="#fff" stroke="#aaa"/>
+    <polyline points="33,36 35,38 39,34"/>
+  </svg>`,
+  tooth: `<svg viewBox="0 0 48 48" fill="none" stroke="#aaa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M16 8c-6 0-10 4-10 9 0 3 1 6 2 8l4 16c0 2 1 3 2 3s2-2 2-4l2-8h4l2 8c0 2 1 4 2 4s2-1 2-3l4-16c1-2 2-5 2-8 0-5-4-9-10-9z"/>
+    <line x1="22" y1="8" x2="22" y2="22"/>
+    <line x1="26" y1="8" x2="26" y2="22"/>
+  </svg>`,
+};
+
 const App = {
   setup() {
-    const show = ref(true);
     const activeTab = ref(0);
 
-    // ── 所有权益包数据 ──
     const packages = [
       {
-        title: '🚀 高端出行权益包',
+        title: '高端出行权益包',
         sections: [
           {
             type: 'activate',
-            label: '激活后 获取如下权益',
+            label: '激活后',
+            suffix: '获取如下权益',
             items: [
-              { icon: '✈️', name: '贵宾室服务 6 次',    desc: '全球贵宾出示厅权益' },
-              { icon: '🚗', name: '境内接送服务 2 次',   desc: '境内多家市级机场/站/城际接送服务' },
-              { icon: '🛒', name: '低价购接送服务 3 次', desc: '50元即可购享指定机场/站/城际接送服务' },
-              { icon: '🛃', name: 'CIP快速通道 1 次',   desc: '尊享机场快捷安检服务' },
-              { icon: '🏨', name: '高档酒店住宿 1 次',  desc: '免费入住奢华酒店' },
+              { iconKey: 'lounge',       name: '贵宾室服务 6 次',    desc: '尊享全球贵宾厅权益' },
+              { iconKey: 'car',          name: '境内接送服务 2 次',   desc: '境内多城市享指定机场/高铁接送服务' },
+              { iconKey: 'discount_car', name: '低价购接送服务 3 次', desc: '50元即可购买指定机场/高铁接送服务' },
+              { iconKey: 'lightning',    name: 'CIP快速通道 6 次',   desc: '尊享机场快速安检服务' },
+              { iconKey: 'hotel',        name: '高档酒店住宿 1 次',  desc: '免费入住豪华酒店' },
             ],
           },
           {
             type: 'consume',
-            label: '消费达标后 获取如下权益',
+            label: '消费达标后',
+            suffix: '获取如下权益',
             items: [
-              { icon: '🚗', name: '境内接送服务 4 次', desc: '每月消费满1万，次日额外赠送1次境内接送服务' },
+              { iconKey: 'car', name: '境内接送服务 4 次', desc: '每月消费满1万，次日额外赠送1次境内接送权益' },
             ],
           },
         ],
       },
       {
-        title: '💊 高端健康权益包',
+        title: '高端健康权益包',
         sections: [
           {
             type: 'activate',
-            label: '激活后 获取如下权益',
+            label: '激活后',
+            suffix: '获取如下权益',
             items: [
-              { icon: '👨‍⚕️', name: '三甲专家咨询 2 次', desc: '知名三甲医院专家线上健康咨询' },
-              { icon: '📅',   name: '专家号预约 1 次',   desc: '享受极速AI挂号或线下专家咨询服务' },
-              { icon: '🏥',   name: '综合体检 1 次',     desc: '高端全套综合体检服务' },
-              { icon: '🦷',   name: '口腔护理 1 次',     desc: '口腔检查、洁牙和皓白提亮' },
+              { iconKey: 'doctor',   name: '三甲专家咨询 2 次', desc: '知名三甲医院专家线上健康咨询' },
+              { iconKey: 'calendar', name: '专家号预约 1 次',   desc: '享受极速AI挂号或线下专家咨询服务' },
+              { iconKey: 'checkup',  name: '综合体检 1 次',     desc: '高端全套综合体检服务' },
+              { iconKey: 'tooth',    name: '口腔护理 1 次',     desc: '口腔检查、洁牙和皓白提亮' },
             ],
           },
           {
             type: 'consume',
-            label: '消费达标后 获取如下权益',
+            label: '消费达标后',
+            suffix: '获取如下权益',
             items: [
-              { icon: '📅', name: '专家号预约 3 次', desc: '每月消费满1万，次日额外赠送1次专家号预约权益' },
+              { iconKey: 'calendar', name: '专家号预约 3 次', desc: '每月消费满1万，次日额外赠送1次专家号预约权益' },
             ],
           },
         ],
       },
     ];
 
-    // ── 当前激活的权益包，Panel 唯一共用此计算属性 ──
     const currentPackage = computed(() => packages[activeTab.value]);
 
     function onConfirm() {
       vant.showToast({
-        message: `已选择「${currentPackage.value.title.replace(/^\S+\s/, '')}」`,
+        message: `已选择「${currentPackage.value.title}」`,
         position: 'bottom',
       });
     }
 
-    return { show, activeTab, packages, currentPackage, onConfirm };
+    return { activeTab, packages, currentPackage, ICONS, onConfirm };
   },
 
   template: `
-    <van-popup
-      v-model:show="show"
-      round
-      closeable
-      :style="{ width: '90%', maxWidth: '400px' }"
-    >
-      <div class="popup-inner">
+    <div>
+      <!-- ── 头部 ── -->
+      <div class="page-header">
+        <!-- 右上角装饰 -->
+        <svg class="deco" viewBox="0 0 200 200" fill="none">
+          <ellipse cx="130" cy="60" rx="80" ry="55" fill="#b2eed8" opacity="0.5"/>
+          <ellipse cx="160" cy="100" rx="55" ry="70" fill="#c8f5e4" opacity="0.4"/>
+          <ellipse cx="100" cy="40" rx="50" ry="35" fill="#d6f9ee" opacity="0.6"/>
+        </svg>
 
         <!-- 标题 -->
-        <van-divider
-          :style="{ color: '#1a1a1a', borderColor: 'transparent', fontSize: '18px', fontWeight: 700, margin: '0 0 14px' }"
-        >权益包2选1</van-divider>
+        <h1 class="page-title">
+          权益包&nbsp;<span class="highlight">2选1</span>
+        </h1>
 
         <!-- 提示条 -->
         <div class="tip-bar">
           <span class="tip-tag">提示</span>
           <span>持卡客户可在以下权益包中二选一，权益包到期后，自动发放上一年所选择的权益包。选定权益包且已使用包内权益则无法再更换权益包；未使用权益，每激活年支持更换N次权益包。</span>
         </div>
+      </div>
 
-        <!-- Tabs：仅渲染标题栏，Panel 不在 van-tab 内 -->
-        <van-tabs v-model:active="activeTab">
-          <van-tab
-            v-for="(pkg, i) in packages"
-            :key="i"
-            :title="pkg.title"
-          />
-        </van-tabs>
+      <!-- ── 主内容 ── -->
+      <div class="page-body">
 
-        <!-- ★ 唯一共用的 Panel div，响应 currentPackage 变化 ★ -->
-        <div class="benefit-card">
-          <span class="selected-badge">✓ 当前选择</span>
+        <!-- Tabs 标题 -->
+        <div class="tabs-card">
+          <van-tabs v-model:active="activeTab" :border="false">
+            <van-tab
+              v-for="(pkg, i) in packages"
+              :key="i"
+              :title="pkg.title"
+            />
+          </van-tabs>
+        </div>
+
+        <!-- 唯一共用 Panel -->
+        <div class="benefit-panel">
 
           <template v-for="(section, sIdx) in currentPackage.sections" :key="sIdx">
-            <p :class="['section-label', section.type]">{{ section.label }}</p>
-            <ul class="benefit-list">
-              <li
-                v-for="item in section.items"
-                :key="item.name"
-                class="benefit-item"
-              >
-                <div class="benefit-icon">{{ item.icon }}</div>
-                <div>
-                  <div class="benefit-name">{{ item.name }}</div>
-                  <div class="benefit-desc">{{ item.desc }}</div>
+
+            <!-- 普通激活区块 -->
+            <template v-if="section.type === 'activate'">
+              <div class="section-header activate">
+                <span class="label-text">{{ section.label }}</span>
+                {{ section.suffix }}
+              </div>
+              <ul class="benefit-list">
+                <li v-for="item in section.items" :key="item.name" class="benefit-item">
+                  <div class="benefit-icon" v-html="ICONS[item.iconKey]"></div>
+                  <div>
+                    <div class="benefit-name">{{ item.name }}</div>
+                    <div class="benefit-desc">{{ item.desc }}</div>
+                  </div>
+                </li>
+              </ul>
+            </template>
+
+            <!-- 消费达标区块（带浅橙背景框）-->
+            <template v-else>
+              <div style="padding: 12px 12px 4px;">
+                <div class="consume-section">
+                  <div class="section-header consume">
+                    <span class="label-text">{{ section.label }}</span>
+                    {{ section.suffix }}
+                  </div>
+                  <ul class="benefit-list">
+                    <li v-for="item in section.items" :key="item.name" class="benefit-item">
+                      <div class="benefit-icon" v-html="ICONS[item.iconKey]"></div>
+                      <div>
+                        <div class="benefit-name">{{ item.name }}</div>
+                        <div class="benefit-desc">{{ item.desc }}</div>
+                      </div>
+                    </li>
+                  </ul>
                 </div>
-              </li>
-            </ul>
+              </div>
+            </template>
+
           </template>
         </div>
-
-        <!-- 领取按钮 -->
-        <div class="footer-btn">
-          <van-button type="primary" round block size="large" @click="onConfirm">
-            领取权益
-          </van-button>
-        </div>
-
       </div>
-    </van-popup>
+
+      <!-- ── 底部固定按钮 ── -->
+      <div class="footer-fixed">
+        <van-button type="primary" round block size="large" @click="onConfirm">
+          领取权益
+        </van-button>
+      </div>
+    </div>
   `,
 };
 
