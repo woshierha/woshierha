@@ -69,8 +69,10 @@
       height: 3px !important;
       border-radius: 2px !important;
     }
+    /* 隐藏 Vant Tabs 默认的内容容器，Panel 由我们自己渲染 */
+    .van-tabs__content { display: none !important; }
 
-    /* ── 权益卡片 ── */
+    /* ── 权益卡片（唯一共用的 Panel div）── */
     .benefit-card {
       border: 2px solid #00c27a;
       border-radius: 12px;
@@ -168,14 +170,14 @@
 <script src="https://cdn.jsdelivr.net/npm/vant@4/lib/vant.min.js"></script>
 
 <script>
-const { createApp, ref } = Vue;
+const { createApp, ref, computed } = Vue;
 
 const App = {
   setup() {
     const show = ref(true);
     const activeTab = ref(0);
 
-    // ── 所有权益包数据，Tab 和 Panel 全部由此驱动 ──
+    // ── 所有权益包数据 ──
     const packages = [
       {
         title: '🚀 高端出行权益包',
@@ -224,14 +226,17 @@ const App = {
       },
     ];
 
+    // ── 当前激活的权益包，Panel 唯一共用此计算属性 ──
+    const currentPackage = computed(() => packages[activeTab.value]);
+
     function onConfirm() {
       vant.showToast({
-        message: `已选择「${packages[activeTab.value].title.replace(/^\S+\s/, '')}」`,
+        message: `已选择「${currentPackage.value.title.replace(/^\S+\s/, '')}」`,
         position: 'bottom',
       });
     }
 
-    return { show, activeTab, packages, onConfirm };
+    return { show, activeTab, packages, currentPackage, onConfirm };
   },
 
   template: `
@@ -254,38 +259,36 @@ const App = {
           <span>持卡客户可在以下权益包中二选一，权益包到期后，自动发放上一年所选择的权益包。选定权益包且已使用包内权益则无法再更换权益包；未使用权益，每激活年支持更换N次权益包。</span>
         </div>
 
-        <!-- Tabs：van-tab 由 v-for 生成 -->
-        <van-tabs v-model:active="activeTab" animated swipeable>
+        <!-- Tabs：仅渲染标题栏，Panel 不在 van-tab 内 -->
+        <van-tabs v-model:active="activeTab">
           <van-tab
-            v-for="(pkg, pkgIndex) in packages"
-            :key="pkgIndex"
+            v-for="(pkg, i) in packages"
+            :key="i"
             :title="pkg.title"
-          >
-            <!-- Panel 内容：sections 也由 v-for 生成 -->
-            <div style="padding: 4px 0 2px;">
-              <div class="benefit-card">
-                <span v-if="activeTab === pkgIndex" class="selected-badge">✓ 当前选择</span>
-
-                <template v-for="(section, sIdx) in pkg.sections" :key="sIdx">
-                  <p :class="['section-label', section.type]">{{ section.label }}</p>
-                  <ul class="benefit-list">
-                    <li
-                      v-for="item in section.items"
-                      :key="item.name"
-                      class="benefit-item"
-                    >
-                      <div class="benefit-icon">{{ item.icon }}</div>
-                      <div>
-                        <div class="benefit-name">{{ item.name }}</div>
-                        <div class="benefit-desc">{{ item.desc }}</div>
-                      </div>
-                    </li>
-                  </ul>
-                </template>
-              </div>
-            </div>
-          </van-tab>
+          />
         </van-tabs>
+
+        <!-- ★ 唯一共用的 Panel div，响应 currentPackage 变化 ★ -->
+        <div class="benefit-card">
+          <span class="selected-badge">✓ 当前选择</span>
+
+          <template v-for="(section, sIdx) in currentPackage.sections" :key="sIdx">
+            <p :class="['section-label', section.type]">{{ section.label }}</p>
+            <ul class="benefit-list">
+              <li
+                v-for="item in section.items"
+                :key="item.name"
+                class="benefit-item"
+              >
+                <div class="benefit-icon">{{ item.icon }}</div>
+                <div>
+                  <div class="benefit-name">{{ item.name }}</div>
+                  <div class="benefit-desc">{{ item.desc }}</div>
+                </div>
+              </li>
+            </ul>
+          </template>
+        </div>
 
         <!-- 领取按钮 -->
         <div class="footer-btn">
